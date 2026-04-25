@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Una pregunta especial 💌</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=Lato:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --rose: #e8637a;
+        --rose-d: #c44a60;
+        --rose-l: #f7c5cf;
+        --cream: #fdf6f0;
+        --warm: #f5e6d8;
+        --text: #3a2030;
+        --muted: #a07080;
+        --gold: #d4a852;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
+
+      body {
+        background: var(--cream);
+        font-family: 'Lato', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+      }
+
+      /* ── Fondo de pétalos/corazones ── */
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .petal {
+        position: absolute;
+        font-size: 1.1rem;
+        opacity: 0;
+        animation: fall linear infinite;
+        user-select: none;
+      }
+
+      @keyframes fall {
+        0% {
+          opacity: 0;
+          transform: translateY(-30px) rotate(0deg);
+        }
+        10% {
+          opacity: 0.6;
+        }
+        90% {
+          opacity: 0.4;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(110vh) rotate(360deg);
+        }
+      }
+
+      /* ── ESCENA PRINCIPAL ── */
+      .scene {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      /* ── SOBRE ── */
+      .envelope-wrap {
+        perspective: 900px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .envelope {
+        position: relative;
+        width: min(320px, 82vw);
+        height: min(210px, 54vw);
+        filter: drop-shadow(0 16px 40px rgba(200, 80, 110, 0.2));
+        transition: transform 0.2s;
+      }
+
+      .envelope:hover {
+        transform: scale(1.03);
+      }
+
+      /* Cuerpo */
+      .env-body {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, #fff5f7 0%, var(--rose-l) 100%);
+        border-radius: 4px 4px 10px 10px;
+        border: 2px solid rgba(200, 80, 110, 0.2);
+        overflow: hidden;
+      }
+
+      /* Corazón centro del sobre */
+      .env-heart {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: clamp(2rem, 8vw, 3rem);
+        transition: opacity 0.4s;
+      }
+
+      /* Solapa inferior */
+      .env-flap-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 55%;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(240, 160, 175, 0.25) 100%
+        );
+        clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        border-top: none;
+      }
+
+      /* Solapa lateral izq */
+      .env-flap-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(240, 160, 175, 0.18),
+          transparent
+        );
+        clip-path: polygon(0 0, 0 100%, 100% 50%);
+      }
+
+      /* Solapa lateral der */
+      .env-flap-right {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          225deg,
+          rgba(240, 160, 175, 0.18),
+          transparent
+        );
+        clip-path: polygon(100% 0, 100% 100%, 0 50%);
+      }
+
+      /* Solapa superior (la que se abre) */
+      .env-flap-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 55%;
+        background: linear-gradient(170deg, #fce8ed 0%, var(--rose-l) 100%);
+        clip-path: polygon(0 0, 50% 100%, 100% 0);
+        transform-origin: top center;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 4px 4px 0 0;
+        z-index: 3;
+        border: 2px solid rgba(200, 80, 110, 0.2);
+        border-bottom: none;
+      }
+
+      /* Sello */
+      .env-stamp {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        border: 2px solid var(--rose);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        background: white;
+        z-index: 4;
+      }
+
+      /* Click hint */
+      .click-hint {
+        margin-top: 12px;
+        font-family: 'Lato', sans-serif;
+        font-size: 0.8rem;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 1;
+        transition: opacity 0.4s;
+        text-align: center;
+      }
+
+      /* ── CARTA (oculta al inicio) ── */
+      .letter-outer {
+        width: min(380px, 90vw);
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.6s;
+        opacity: 0;
+        margin-top: -6px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .letter {
+        background: white;
+        border-radius: 2px 2px 6px 6px;
+        padding: clamp(24px, 6vw, 40px) clamp(20px, 6vw, 38px)
+          clamp(28px, 7vw, 44px);
+        box-shadow:
+          0 20px 60px rgba(180, 60, 90, 0.15),
+          0 4px 12px rgba(180, 60, 90, 0.08);
+        border: 1px solid rgba(200, 80, 110, 0.12);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Líneas de fondo de la carta */
+      .letter::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          transparent,
+          transparent 27px,
+          rgba(232, 99, 122, 0.07) 27px,
+          rgba(232, 99, 122, 0.07) 28px
+        );
+        background-position: 0 48px;
+        pointer-events: none;
+      }
+
+      /* Detalle dorado arriba */
+      .letter-ornament {
+        font-size: clamp(1.6rem, 5vw, 2.2rem);
+        margin-bottom: 6px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      .letter-date {
+        font-size: 0.72rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      .letter h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+        font-style: italic;
+        color: var(--rose-d);
+        margin-bottom: 16px;
+        line-height: 1.2;
+      }
+
+      .letter p {
+        font-size: clamp(0.85rem, 2.6vw, 0.97rem);
+        color: var(--text);
+        line-height: 1.8;
+        margin-bottom: 12px;
+        font-weight: 300;
+      }
+
+      .letter p em {
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        color: var(--rose-d);
+        font-size: 1.05em;
+      }
+
+      .letter-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 18px 0;
+        color: var(--rose-l);
+        font-size: 0.8rem;
+        letter-spacing: 0.15em;
+      }
+
+      .letter-divider::before,
+      .letter-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--rose-l),
+          transparent
+        );
+      }
+
+      .question {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.3rem, 4.5vw, 1.65rem);
+        color: var(--text);
+        margin: 8px 0 24px;
+        line-height: 1.3;
+      }
+
+      .question span {
+        color: var(--rose);
+        font-style: italic;
+      }
+
+      /* ── BOTONES ── */
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        position: relative;
+        min-height: 56px;
+      }
+
+      .btn-yes,
+      .btn-no {
+        padding: 13px 36px;
+        border-radius: 50px;
+        font-family: 'Lato', sans-serif;
+        font-size: clamp(0.9rem, 2.8vw, 1rem);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        border: none;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+        user-select: none;
+        position: relative;
+      }
+
+      .btn-yes {
+        background: linear-gradient(135deg, var(--rose) 0%, var(--rose-d) 100%);
+        color: white;
+        box-shadow: 0 6px 24px rgba(196, 74, 96, 0.4);
+      }
+
+      .btn-yes:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 32px rgba(196, 74, 96, 0.5);
+      }
+
+      .btn-yes:active {
+        transform: scale(0.97);
+      }
+
+      .btn-no {
+        background: white;
+        color: var(--muted);
+        border: 1.5px solid var(--rose-l);
+        box-shadow: 0 2px 8px rgba(200, 80, 110, 0.08);
+        position: absolute; /* para poder moverse libremente mirar como queda en movil */
+        transition: none; /* sin transición para que salte */
+        white-space: nowrap;
+      }
+
+      /* ── PANTALLA FINAL (SÍ) ── */
+      .yay-screen {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at center,
+          #fff0f3 0%,
+          var(--cream) 70%
+        );
+        z-index: 100;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 30px;
+        animation: fadeIn 0.6s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .yay-emoji {
+        font-size: clamp(3.5rem, 14vw, 6rem);
+        margin-bottom: 18px;
+        animation: heartbeat 1.2s ease-in-out infinite;
+      }
+
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        14% {
+          transform: scale(1.2);
+        }
+        28% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.12);
+        }
+        70% {
+          transform: scale(1);
+        }
+      }
+
+      .yay-screen h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.8rem, 6vw, 3rem);
+        font-style: italic;
+        color: var(--rose-d);
+        margin-bottom: 14px;
+      }
+
+      .yay-screen p {
+        font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+        color: var(--muted);
+        max-width: 380px;
+        line-height: 1.7;
+        font-weight: 300;
+      }
+
+      .confetti-piece {
+        position: fixed;
+        font-size: 1.4rem;
+        animation: confettiFall 2.5s ease-in forwards;
+        pointer-events: none;
+        z-index: 101;
+      }
+
+      @keyframes confettiFall {
+        0% {
+          opacity: 1;
+          transform: translateY(0) rotate(0deg) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(90vh) rotate(720deg) scale(0.5);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Fondo de corazones cayendo -->
+    <div class="bg-layer" id="bgLayer"></div>
+
+    <!-- Escena -->
+    <div class="scene" id="mainScene">
+      <!-- SOBRE -->
+      <div class="envelope-wrap" id="envelopeWrap" onclick="openEnvelope()">
+        <div class="envelope">
+          <div class="env-body">
+            <div class="env-flap-left"></div>
+            <div class="env-flap-right"></div>
+            <div class="env-flap-bottom"></div>
+            <div class="env-heart" id="envHeart">💌</div>
+          </div>
+          <div class="env-flap-top" id="envFlapTop"></div>
+          <div class="env-stamp">💕</div>
+        </div>
+      </div>
+
+      <div class="click-hint" id="clickHint">toca para abrir</div>
+
+      <!-- CARTA -->
+      <div class="letter-outer" id="letterOuter">
+        <div class="letter">
+          <div class="letter-ornament">🌹</div>
+          <div class="letter-date" id="letterDate"></div>
+
+          <h2>Para ti, que no lo sabe aún...</h2>
+
+          <p>
+            Hay cosas que se sienten antes de entenderse.<br />
+            Contigo pasa eso. Cada vez que estás cerca,<br />
+            algo dentro de mí simplemente <em>sabe</em>.
+          </p>
+
+          <p>
+            Me gustan tus gestos, tu forma de reír,<br />
+            la manera en que haces que los días ordinarios<br />
+            se sientan extraordinarios sin proponértelo.
+          </p>
+
+          <p><em>C.F.L.C</em></p>
+
+          <div class="letter-divider">❧</div>
+
+          <p class="question">¿Quieres ser <span>mi novia</span>? 🥺</p>
+
+          <div class="buttons" id="buttonsArea">
+            <button class="btn-yes" onclick="sayYes()">💖 Sí, quiero</button>
+            <button class="btn-no" id="btnNo">No...</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA FINAL -->
+    <div class="yay-screen" id="yayScreen">
+      <div class="yay-emoji">💗</div>
+      <h1>¡Qué felicidad!</h1>
+      <br>
+        Prometido: cada día voy a hacer que no te arrepientas. 🌹<br /><br />
+        Mamacita ✨
+      </p>
+      <br>Att: C.C.A.A</br>
+    </div>
+
+    <script>
+      // ── Pétalos de fondo 
+      const symbols = ['🌸', '❤️', '💕', '🌹', '✨', '💗', '🌺', '💓'];
+      const bg = document.getElementById('bgLayer');
+
+      function spawnPetal() {
+        const el = document.createElement('div');
+        el.className = 'petal';
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = 0.7 + Math.random() * 0.8 + 'rem';
+        const dur = 6 + Math.random() * 8;
+        el.style.animationDuration = dur + 's';
+        el.style.animationDelay = Math.random() * dur + 's';
+        bg.appendChild(el);
+        setTimeout(() => el.remove(), (dur + dur) * 1000);
+      }
+
+      for (let i = 0; i < 18; i++) setTimeout(spawnPetal, i * 400);
+      setInterval(spawnPetal, 1200);
+
+      // ── Fecha en la carta  llamar  la variables bro 
+      const meses = [
+        'enero',
+        'febrero',
+        'marzo',
+        'abril',
+        'mayo',
+        'junio',
+        'julio',
+        'agosto',
+        'septiembre',
+        'octubre',
+        'noviembre',
+        'diciembre',
+      ];
+      const hoy = new Date();
+      document.getElementById('letterDate').textContent =
+        `${hoy.getDate()} de ${meses[hoy.getMonth()]} de ${hoy.getFullYear()}`;
+
+      // ── Abrir sobre ───────────────────────────────────────────────────
+      let opened = false;
+
+      function openEnvelope() {
+        if (opened) return;
+        opened = true;
+
+        // Rotar solapa
+        const flap = document.getElementById('envFlapTop');
+        flap.style.transform = 'rotateX(180deg)';
+        flap.style.transformOrigin = 'top center';
+        flap.style.zIndex = '1'; // pasa detrás
+
+        document.getElementById('envHeart').textContent = '💌';
+        document.getElementById('clickHint').style.opacity = '0';
+
+        // Quitar cursor
+        document.getElementById('envelopeWrap').style.cursor = 'default';
+
+        // Mostrar carta con pequeño delay
+        setTimeout(() => {
+          const lo = document.getElementById('letterOuter');
+          lo.style.maxHeight = '900px';
+          lo.style.opacity = '1';
+        }, 500);
+      }
+
+      // ── Botón NO que huye ─────────────────────────────────────────────
+      const btnNo = document.getElementById('btnNo');
+      let noClicks = 0;
+
+      function getRandomPos(btn) {
+        const area = document.getElementById('buttonsArea');
+        const areaR = area.getBoundingClientRect();
+        const btnW = btn.offsetWidth;
+        const btnH = btn.offsetHeight;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // Intenta quedarse en la carta, si no, usa pantalla completa
+        let x, y;
+        const useScreen = Math.random() > 0.4 || noClicks > 3;
+        if (useScreen) {
+          x = Math.random() * (vw - btnW);
+          y = Math.random() * (vh - btnH);
+        } else {
+          const maxX = Math.max(0, areaR.width - btnW);
+          const maxY = Math.max(0, areaR.height - btnH);
+          x = Math.random() * maxX + areaR.left;
+          y = Math.random() * maxY + areaR.top;
+        }
+        return {
+          x: Math.max(0, Math.min(x, vw - btnW)),
+          y: Math.max(0, Math.min(y, vh - btnH)),
+        };
+      }
+
+      function moveNo() {
+        noClicks++;
+        btnNo.style.position = 'fixed';
+        btnNo.style.zIndex = '50';
+        const { x, y } = getRandomPos(btnNo);
+        btnNo.style.left = x + 'px';
+        btnNo.style.top = y + 'px';
+
+        // Se achica con cada intento
+        const scale = Math.max(0.55, 1 - noClicks * 0.08);
+        btnNo.style.transform = `scale(${scale})`;
+        btnNo.style.opacity = Math.max(0.3, 1 - noClicks * 0.07) + '';
+
+        // Texto cambia
+        const textos = [
+          'No...',
+          'Segura?',
+          'Piénsalo',
+          'Mmm...',
+          'En serio?',
+          'Noooo',
+          'cochina',
+          'deja darle al no',
+          'eey no me toques'
+        ];
+        btnNo.textContent = textos[Math.min(noClicks, textos.length - 1)];
+      }
+
+      // Touch: mover al acercar el dedo
+      btnNo.addEventListener(
+        'touchstart',
+        (e) => {
+          e.preventDefault();
+          moveNo();
+        },
+        { passive: false },
+      );
+
+      // Mouse hover: saltar antes de hacer click
+      btnNo.addEventListener('mouseenter', moveNo);
+      btnNo.addEventListener('click', moveNo);
+
+      // ── Pantalla final SÍ 
+      function sayYes() {
+        // Confetti
+        const emojis = [
+          '🎉',
+          '💖',
+          '🌹',
+          '✨',
+          '💕',
+          '🥳',
+          '🎊',
+          '💗',
+          '🌸',
+          '⭐',
+        ];
+        for (let i = 0; i < 28; i++) {
+          setTimeout(() => {
+            const c = document.createElement('div');
+            c.className = 'confetti-piece';
+            c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.top = '-30px';
+            c.style.animationDelay = Math.random() * 0.6 + 's';
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 3000);
+          }, i * 60);
+        }
+
+        const yay = document.getElementById('yayScreen');
+        yay.style.display = 'flex';
+      }
+    </script>
+  </body>
+</html>
